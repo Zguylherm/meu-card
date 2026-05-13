@@ -3,13 +3,12 @@
 <head>
   <meta charset="UTF-8" />
 
-  <!-- Remove zoom no celular -->
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
   />
 
-  <title>Bio - zGuylherme</title>
+  <title>zGuylherme</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -105,6 +104,7 @@
       flex-direction: column;
       gap: 22px;
       animation: subir 0.8s ease forwards;
+      perspective: 1000px;
     }
 
     @keyframes subir {
@@ -130,6 +130,35 @@
       min-height: 330px;
     }
 
+    .music-card {
+      width: 100%;
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: rgba(32, 0, 0, 0.88);
+      border: 1px solid rgba(255, 0, 45, 0.18);
+      box-shadow: 0 0 35px rgba(255, 0, 35, 0.22);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 28px;
+    }
+
+    .profile-card,
+    .music-card {
+      position: relative;
+      overflow: hidden;
+      transform-style: preserve-3d;
+      transition: transform 0.18s ease;
+      will-change: transform;
+    }
+
+    .profile-card > *,
+    .music-card > * {
+      position: relative;
+      z-index: 2;
+    }
+
     .avatar {
       width: 105px;
       height: 105px;
@@ -139,6 +168,8 @@
       box-shadow: 0 0 24px rgba(255, 0, 45, 0.28);
       margin-bottom: 20px;
       background: #000;
+      transition: transform 0.2s ease;
+      transform: translateZ(35px);
     }
 
     h1 {
@@ -182,20 +213,6 @@
       filter: drop-shadow(0 0 8px rgba(107,76,255,0.8));
     }
 
-    .music-card {
-      width: 100%;
-      padding: 14px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      background: rgba(32, 0, 0, 0.88);
-      border: 1px solid rgba(255, 0, 45, 0.18);
-      box-shadow: 0 0 35px rgba(255, 0, 35, 0.22);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border-radius: 28px;
-    }
-
     .music-cover {
       width: 80px;
       height: 80px;
@@ -204,6 +221,8 @@
       flex-shrink: 0;
       box-shadow: 0 0 18px rgba(255,255,255,0.08);
       background: #111;
+      transition: transform 0.2s ease;
+      transform: translateZ(35px);
     }
 
     .music-content {
@@ -469,13 +488,11 @@
         </div>
       </div>
 
-      <!-- Coloque o arquivo musica.mp3 junto do index.html -->
       <audio id="audioPlayer" src="musica.mp3" preload="metadata"></audio>
     </section>
   </main>
 
   <script>
-    // Remove zoom no celular por duplo toque
     let lastTouchEnd = 0;
 
     document.addEventListener("touchend", function (event) {
@@ -492,13 +509,11 @@
       event.preventDefault();
     });
 
-    // Carrega o vídeo depois que o site abrir
     const bgVideo = document.getElementById("bgVideo");
 
     window.addEventListener("load", () => {
       setTimeout(() => {
         bgVideo.load();
-
         bgVideo.play().catch(() => {});
 
         bgVideo.addEventListener("canplay", () => {
@@ -507,7 +522,65 @@
       }, 500);
     });
 
-    // Player de música
+    const cardsTilt = document.querySelectorAll(".profile-card, .music-card");
+
+    function aplicarTilt(card, clientX, clientY) {
+      const rect = card.getBoundingClientRect();
+
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
+
+      const meioX = rect.width / 2;
+      const meioY = rect.height / 2;
+
+      const rotateY = ((x - meioX) / meioX) * 12;
+      const rotateX = -((y - meioY) / meioY) * 12;
+
+      card.style.transform = `
+        rotateX(${rotateX}deg)
+        rotateY(${rotateY}deg)
+        scale(1.03)
+      `;
+    }
+
+    function resetTilt(card) {
+      card.style.transform = "rotateX(0deg) rotateY(0deg) scale(1)";
+    }
+
+    cardsTilt.forEach((card) => {
+      card.addEventListener("mousemove", (event) => {
+        aplicarTilt(card, event.clientX, event.clientY);
+      });
+
+      card.addEventListener("mouseleave", () => {
+        resetTilt(card);
+      });
+
+      card.addEventListener("touchstart", (event) => {
+        const touch = event.touches[0];
+        aplicarTilt(card, touch.clientX, touch.clientY);
+      }, { passive: true });
+
+      card.addEventListener("touchmove", (event) => {
+        const touch = event.touches[0];
+        aplicarTilt(card, touch.clientX, touch.clientY);
+      }, { passive: true });
+
+      card.addEventListener("touchend", () => {
+        setTimeout(() => {
+          resetTilt(card);
+        }, 350);
+      });
+
+      card.addEventListener("click", (event) => {
+        aplicarTilt(card, event.clientX, event.clientY);
+
+        setTimeout(() => {
+          resetTilt(card);
+        }, 450);
+      });
+    });
+
     const audio = document.getElementById("audioPlayer");
     const playBtn = document.getElementById("playBtn");
     const playIcon = playBtn.querySelector("i");
@@ -562,7 +635,9 @@
       updateProgressColor();
     });
 
-    playBtn.addEventListener("click", () => {
+    playBtn.addEventListener("click", (event) => {
+      event.stopPropagation();
+
       if (audio.paused) {
         audio.play();
 
@@ -586,14 +661,21 @@
       updateProgressColor();
     });
 
-    backBtn.addEventListener("click", () => {
+    backBtn.addEventListener("click", (event) => {
+      event.stopPropagation();
       audio.currentTime = Math.max(0, audio.currentTime - 10);
     });
 
-    nextBtn.addEventListener("click", () => {
+    nextBtn.addEventListener("click", (event) => {
+      event.stopPropagation();
+
       if (!audio.duration) return;
 
       audio.currentTime = Math.min(audio.duration, audio.currentTime + 10);
+    });
+
+    progressBar.addEventListener("click", (event) => {
+      event.stopPropagation();
     });
 
     updateProgressColor();
