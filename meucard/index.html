@@ -159,6 +159,18 @@
       z-index: 2;
     }
 
+    .profile-card::before,
+    .music-card::before {
+      content: "";
+      position: absolute;
+      inset: -80px;
+      background:
+        radial-gradient(circle at top left, rgba(255, 0, 60, 0.20), transparent 35%),
+        radial-gradient(circle at bottom right, rgba(120, 50, 255, 0.14), transparent 40%);
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
     .avatar {
       width: 105px;
       height: 105px;
@@ -216,10 +228,12 @@
     .music-cover {
       width: 80px;
       height: 80px;
-      border-radius: 20px;
+      border-radius: 18px;
       object-fit: cover;
       flex-shrink: 0;
-      box-shadow: 0 0 18px rgba(255,255,255,0.08);
+      box-shadow:
+        0 0 18px rgba(255, 0, 45, 0.25),
+        0 0 30px rgba(123, 60, 255, 0.16);
       background: #111;
       transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
       transform: translateZ(24px);
@@ -253,12 +267,28 @@
       font-weight: 700;
       color: rgba(255,255,255,0.82);
       margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .music-equalizer {
       color: rgba(255,255,255,0.88);
       font-size: 15px;
       margin-top: 3px;
+      animation: pulseIcon 1.2s ease-in-out infinite;
+    }
+
+    @keyframes pulseIcon {
+      0%, 100% {
+        opacity: 0.55;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 1;
+        transform: scale(1.14);
+      }
     }
 
     .player-row {
@@ -444,15 +474,15 @@
     <section class="music-card">
       <img
         class="music-cover"
-        src="https://i.scdn.co/image/ab67616d0000b273b46f74097655d7f353caab14"
-        alt="Capa da música"
+        src="https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e02746e0dc2fa7ef836f3177156"
+        alt="Capa original da música I Feel Nothing"
       >
 
       <div class="music-content">
         <div class="music-header">
           <div>
-            <h2>Dancing in My Room</h2>
-            <p>347aidan</p>
+            <h2>I Feel Nothing</h2>
+            <p>Josh A, Lil Revive</p>
           </div>
 
           <i class="fa-solid fa-chart-simple music-equalizer"></i>
@@ -474,15 +504,15 @@
 
           <span id="durationTime" class="time">0:00</span>
 
-          <button id="backBtn" class="control-btn" type="button">
+          <button id="backBtn" class="control-btn" type="button" aria-label="Voltar 10 segundos">
             <i class="fa-solid fa-backward-step"></i>
           </button>
 
-          <button id="playBtn" class="play-btn" type="button">
+          <button id="playBtn" class="play-btn" type="button" aria-label="Tocar música">
             <i class="fa-solid fa-play"></i>
           </button>
 
-          <button id="nextBtn" class="control-btn" type="button">
+          <button id="nextBtn" class="control-btn" type="button" aria-label="Avançar 10 segundos">
             <i class="fa-solid fa-forward-step"></i>
           </button>
         </div>
