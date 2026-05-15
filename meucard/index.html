@@ -436,10 +436,10 @@
     muted
     loop
     playsinline
-    preload="none"
+    preload="auto"
   >
     <source
-      src="https://cdn.discordapp.com/attachments/1504180702067818607/1504238448943435931/the-shadow-fantasy-king-moewalls-com.mp4?ex=6a0642b9&is=6a04f139&hm=9773f735a5772e9240935990469982ae1fd1d6749e3751f0c9d231e8b4daaaff&"
+      src="https://cdn.discordapp.com/attachments/1504180702067818607/1504238448943435931/the-shadow-fantasy-king-moewalls-com.mp4?ex=6a083cf9&is=6a06eb79&hm=55811117c9435f3d59d3496110738df397e08c54f0e2e53c092cc4ed1a29cae3&"
       type="video/mp4"
     >
   </video>
@@ -541,16 +541,51 @@
 
     const bgVideo = document.getElementById("bgVideo");
 
+    function carregarVideoFundo() {
+      if (!bgVideo) return;
+
+      bgVideo.muted = true;
+      bgVideo.loop = true;
+      bgVideo.playsInline = true;
+
+      bgVideo.load();
+
+      const tentarPlay = bgVideo.play();
+
+      if (tentarPlay !== undefined) {
+        tentarPlay
+          .then(() => {
+            bgVideo.classList.add("loaded");
+          })
+          .catch(() => {
+            bgVideo.classList.remove("loaded");
+          });
+      }
+    }
+
+    bgVideo.addEventListener("loadeddata", () => {
+      bgVideo.classList.add("loaded");
+    });
+
+    bgVideo.addEventListener("canplay", () => {
+      bgVideo.classList.add("loaded");
+      bgVideo.play().catch(() => {});
+    });
+
+    bgVideo.addEventListener("error", () => {
+      bgVideo.classList.remove("loaded");
+      console.log("O vídeo de fundo não carregou. O link do Discord pode ter expirado.");
+    });
+
     window.addEventListener("load", () => {
       setTimeout(() => {
-        bgVideo.load();
-        bgVideo.play().catch(() => {});
-
-        bgVideo.addEventListener("canplay", () => {
-          bgVideo.classList.add("loaded");
-        });
-      }, 500);
+        carregarVideoFundo();
+      }, 300);
     });
+
+    document.addEventListener("click", () => {
+      bgVideo.play().catch(() => {});
+    }, { once: true });
 
     const cardsTilt = document.querySelectorAll(".profile-card, .music-card");
 
