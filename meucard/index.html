@@ -61,6 +61,12 @@
       -webkit-user-drag: none;
     }
 
+    img {
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+
     .bg-fallback {
       position: fixed;
       inset: 0;
@@ -155,9 +161,9 @@
     .music-card {
       position: relative;
       overflow: hidden;
-      transform-style: preserve-3d;
-      transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease, border-color 0.35s ease;
-      will-change: transform;
+      transform-style: flat;
+      transition: transform 0.28s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+      will-change: auto;
     }
 
     .profile-card > *,
@@ -192,6 +198,7 @@
 
     .profile-card:hover,
     .music-card:hover {
+      transform: translateY(-2px);
       border-color: rgba(255, 60, 100, 0.34);
       box-shadow:
         0 24px 70px rgba(0, 0, 0, 0.46),
@@ -232,7 +239,6 @@
       margin-bottom: 0;
       background: #000;
       transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
-      transform: translateZ(24px);
       flex-shrink: 0;
     }
 
@@ -313,7 +319,6 @@
         0 0 30px rgba(123, 60, 255, 0.16);
       background: #111;
       transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
-      transform: translateZ(24px);
     }
 
     .music-content {
@@ -548,9 +553,11 @@
       <div class="profile-top">
         <div class="avatar-area">
           <img
-            class="avatar"
+            class="avatar protected-img"
             src="https://i.pinimg.com/originals/03/f9/c9/03f9c952418ae59bf3a46efa83717710.gif"
             alt="Avatar"
+            draggable="false"
+            oncontextmenu="return false;"
           >
 
           <p class="frase">A vida no off, é mais sossegada</p>
@@ -704,35 +711,23 @@
       bgVideo.play().catch(() => {});
     }, { once: true });
 
-    const cardsTilt = document.querySelectorAll(".profile-card, .music-card");
+    const protectedImages = document.querySelectorAll(".protected-img");
 
-    function aplicarTilt(card, clientX, clientY) {
-      const rect = card.getBoundingClientRect();
-
-      const x = clientX - rect.left;
-      const y = clientY - rect.top;
-
-      const meioX = rect.width / 2;
-      const meioY = rect.height / 2;
-
-      const rotateY = ((x - meioX) / meioX) * 5;
-      const rotateX = -((y - meioY) / meioY) * 5;
-
-      card.style.transform = `
-        rotateX(${rotateX}deg)
-        rotateY(${rotateY}deg)
-        scale(1.012)
-      `;
-    }
-
-    function resetTilt(card) {
-      card.style.transform = "rotateX(0deg) rotateY(0deg) scale(1)";
-    }
-
-    cardsTilt.forEach((card) => {
-      card.addEventListener("mousemove", (event) => {
-        aplicarTilt(card, event.clientX, event.clientY);
+    protectedImages.forEach((img) => {
+      img.addEventListener("contextmenu", (event) => {
+        event.preventDefault();
       });
+
+      img.addEventListener("dragstart", (event) => {
+        event.preventDefault();
+      });
+
+      img.addEventListener("selectstart", (event) => {
+        event.preventDefault();
+      });
+
+      img.addEventListener("touchstart", () => {}, { passive: true });
+    });
 
       card.addEventListener("mouseleave", () => {
         resetTilt(card);
