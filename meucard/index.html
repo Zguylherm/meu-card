@@ -61,10 +61,11 @@
       -webkit-user-drag: none;
     }
 
-    img {
+    img.protected-img {
       user-select: none;
       -webkit-user-select: none;
       -webkit-touch-callout: none;
+      pointer-events: auto;
     }
 
     .bg-fallback {
@@ -161,9 +162,9 @@
     .music-card {
       position: relative;
       overflow: hidden;
-      transform-style: flat;
-      transition: transform 0.28s ease, box-shadow 0.35s ease, border-color 0.35s ease;
-      will-change: auto;
+      transform-style: preserve-3d;
+      transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease, border-color 0.35s ease;
+      will-change: transform;
     }
 
     .profile-card > *,
@@ -198,7 +199,6 @@
 
     .profile-card:hover,
     .music-card:hover {
-      transform: translateY(-2px);
       border-color: rgba(255, 60, 100, 0.34);
       box-shadow:
         0 24px 70px rgba(0, 0, 0, 0.46),
@@ -212,21 +212,6 @@
       transform: translateX(35%);
     }
 
-    .profile-top {
-      display: flex;
-      align-items: center;
-      gap: 18px;
-      margin-bottom: 20px;
-    }
-
-    .avatar-area {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-      flex-shrink: 0;
-    }
-
     .avatar {
       width: 105px;
       height: 105px;
@@ -236,46 +221,36 @@
       box-shadow:
         0 0 24px rgba(255, 0, 45, 0.30),
         0 0 42px rgba(123, 60, 255, 0.12);
-      margin-bottom: 0;
+      margin-bottom: 20px;
       background: #000;
       transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
-      flex-shrink: 0;
-    }
-
-    .profile-name-area {
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
+      transform: translateZ(24px);
     }
 
     h1 {
       font-size: 32px;
-      line-height: 1.05;
+      line-height: 1;
       font-weight: 800;
       letter-spacing: 0.5px;
-      margin-bottom: 0;
+      margin-bottom: 24px;
       text-shadow:
         0 0 14px rgba(255,255,255,0.10),
         0 0 24px rgba(255,0,45,0.16);
-      word-break: break-word;
     }
 
     .linha {
       height: 1px;
       width: 78%;
       background: linear-gradient(90deg, #7b3cff, rgba(255,0,45,0.55), transparent);
-      margin-bottom: 16px;
+      margin-bottom: 20px;
     }
 
     .frase {
-      width: 105px;
-      font-size: 12px;
-      line-height: 1.25;
+      font-size: 18px;
       font-weight: 800;
       font-style: italic;
       color: rgba(255,255,255,0.86);
-      text-align: center;
+      margin-bottom: 16px;
       text-shadow: 0 0 12px rgba(255,255,255,0.12);
     }
 
@@ -297,15 +272,12 @@
     }
 
     .info a {
-      color: rgba(255,255,255,0.78);
+      color: rgba(255,255,255,0.74);
       text-decoration: none;
-      transition: color 0.2s ease, text-shadow 0.2s ease, transform 0.2s ease;
     }
 
     .info a:hover {
-      color: #ffffff;
-      text-shadow: 0 0 12px rgba(107,76,255,0.45);
-      transform: translateX(2px);
+      color: #fff;
     }
 
     .music-cover {
@@ -319,6 +291,7 @@
         0 0 30px rgba(123, 60, 255, 0.16);
       background: #111;
       transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+      transform: translateZ(24px);
     }
 
     .music-content {
@@ -450,6 +423,7 @@
       transform: scale(1.08);
     }
 
+
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
         animation-duration: 0.01ms !important;
@@ -475,23 +449,12 @@
         padding: 28px 24px;
       }
 
-      .profile-top {
-        gap: 14px;
-        margin-bottom: 18px;
-      }
-
-      .avatar {
-        width: 92px;
-        height: 92px;
+      h1 {
+        font-size: 29px;
       }
 
       .frase {
-        width: 92px;
-        font-size: 11px;
-      }
-
-      h1 {
-        font-size: 27px;
+        font-size: 16px;
       }
 
       .music-card {
@@ -550,25 +513,19 @@
 
   <main class="container">
     <section class="profile-card">
-      <div class="profile-top">
-        <div class="avatar-area">
-          <img
-            class="avatar protected-img"
-            src="https://i.pinimg.com/originals/03/f9/c9/03f9c952418ae59bf3a46efa83717710.gif"
-            alt="Avatar"
-            draggable="false"
-            oncontextmenu="return false;"
-          >
+      <img
+        class="avatar protected-img"
+        src="https://i.pinimg.com/originals/03/f9/c9/03f9c952418ae59bf3a46efa83717710.gif"
+        alt="Avatar"
+        draggable="false"
+        oncontextmenu="return false;"
+      >
 
-          <p class="frase">A vida no off, é mais sossegada</p>
-        </div>
-
-        <div class="profile-name-area">
-          <h1>zGuylherme</h1>
-        </div>
-      </div>
+      <h1>zGuylherme</h1>
 
       <div class="linha"></div>
+
+      <p class="frase">A vida no off, é mais sossegada</p>
 
       <div class="info">
         <i class="fa-solid fa-briefcase"></i>
@@ -711,23 +668,35 @@
       bgVideo.play().catch(() => {});
     }, { once: true });
 
-    const protectedImages = document.querySelectorAll(".protected-img");
+    const cardsTilt = document.querySelectorAll(".profile-card, .music-card");
 
-    protectedImages.forEach((img) => {
-      img.addEventListener("contextmenu", (event) => {
-        event.preventDefault();
+    function aplicarTilt(card, clientX, clientY) {
+      const rect = card.getBoundingClientRect();
+
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
+
+      const meioX = rect.width / 2;
+      const meioY = rect.height / 2;
+
+      const rotateY = ((x - meioX) / meioX) * 5;
+      const rotateX = -((y - meioY) / meioY) * 5;
+
+      card.style.transform = `
+        rotateX(${rotateX}deg)
+        rotateY(${rotateY}deg)
+        scale(1.012)
+      `;
+    }
+
+    function resetTilt(card) {
+      card.style.transform = "rotateX(0deg) rotateY(0deg) scale(1)";
+    }
+
+    cardsTilt.forEach((card) => {
+      card.addEventListener("mousemove", (event) => {
+        aplicarTilt(card, event.clientX, event.clientY);
       });
-
-      img.addEventListener("dragstart", (event) => {
-        event.preventDefault();
-      });
-
-      img.addEventListener("selectstart", (event) => {
-        event.preventDefault();
-      });
-
-      img.addEventListener("touchstart", () => {}, { passive: true });
-    });
 
       card.addEventListener("mouseleave", () => {
         resetTilt(card);
@@ -756,6 +725,12 @@
           resetTilt(card);
         }, 550);
       });
+    });
+
+    document.querySelectorAll(".protected-img").forEach((img) => {
+      img.addEventListener("contextmenu", (event) => event.preventDefault());
+      img.addEventListener("dragstart", (event) => event.preventDefault());
+      img.addEventListener("selectstart", (event) => event.preventDefault());
     });
 
     const audio = document.getElementById("audioPlayer");
