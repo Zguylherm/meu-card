@@ -134,8 +134,8 @@
         0 22px 60px rgba(0, 0, 0, 0.42),
         0 0 38px rgba(255, 0, 35, 0.20),
         inset 0 1px 0 rgba(255,255,255,0.08);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       border-radius: 26px;
       padding: 32px 28px;
       min-height: 330px;
@@ -153,21 +153,36 @@
         0 18px 50px rgba(0, 0, 0, 0.36),
         0 0 36px rgba(255, 0, 35, 0.22),
         inset 0 1px 0 rgba(255,255,255,0.07);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       border-radius: 28px;
     }
 
     .profile-card,
     .music-card {
+      --rx: 0deg;
+      --ry: 0deg;
+      --ty: 0px;
+      --scale: 1;
+      --mx: 50%;
+      --my: 50%;
+      --light: 0;
       position: relative;
       overflow: hidden;
+      transform-style: preserve-3d;
+      transform:
+        perspective(1100px)
+        translateY(var(--ty))
+        rotateX(var(--rx))
+        rotateY(var(--ry))
+        scale(var(--scale));
       transition:
-        transform 0.28s ease,
-        box-shadow 0.28s ease,
-        border-color 0.28s ease,
-        background 0.28s ease;
+        box-shadow 0.25s ease,
+        border-color 0.25s ease,
+        background 0.25s ease;
       will-change: transform;
+      backface-visibility: hidden;
+      contain: layout paint;
     }
 
     .profile-card > *,
@@ -180,34 +195,48 @@
     .music-card::before {
       content: "";
       position: absolute;
-      inset: 0;
+      inset: -1px;
       background:
         radial-gradient(circle at 18% 0%, rgba(255, 0, 60, 0.18), transparent 36%),
         radial-gradient(circle at 100% 100%, rgba(120, 50, 255, 0.13), transparent 42%),
         linear-gradient(135deg, rgba(255,255,255,0.055), transparent 48%, rgba(255,255,255,0.025));
-      opacity: 0.72;
-      transition: opacity 0.28s ease;
+      opacity: 0.78;
+      transition: opacity 0.25s ease;
       pointer-events: none;
+      transform: translateZ(0);
+    }
+
+    .profile-card::after,
+    .music-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(
+          circle at var(--mx) var(--my),
+          rgba(255, 255, 255, 0.18),
+          rgba(255, 255, 255, 0.07) 18%,
+          transparent 42%
+        );
+      opacity: var(--light);
+      transition: opacity 0.22s ease;
+      pointer-events: none;
+      mix-blend-mode: screen;
+      transform: translateZ(1px);
     }
 
     .profile-card:hover,
     .music-card:hover {
-      transform: translateY(-4px);
-      border-color: rgba(255, 60, 100, 0.38);
+      border-color: rgba(255, 60, 100, 0.40);
       box-shadow:
-        0 26px 76px rgba(0, 0, 0, 0.48),
+        0 28px 80px rgba(0, 0, 0, 0.50),
         0 0 46px rgba(255, 0, 45, 0.30),
-        inset 0 1px 0 rgba(255,255,255,0.11);
+        inset 0 1px 0 rgba(255,255,255,0.12);
     }
 
     .profile-card:hover::before,
     .music-card:hover::before {
       opacity: 1;
-    }
-
-    .profile-card:active,
-    .music-card:active {
-      transform: translateY(-2px) scale(0.995);
     }
 
     .avatar {
@@ -222,6 +251,7 @@
       margin-bottom: 20px;
       background: #000;
       transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+      transform: translateZ(34px);
     }
 
     h1 {
@@ -233,6 +263,7 @@
       text-shadow:
         0 0 14px rgba(255,255,255,0.10),
         0 0 24px rgba(255,0,45,0.16);
+      transform: translateZ(26px);
     }
 
     .linha {
@@ -288,11 +319,13 @@
         0 0 30px rgba(123, 60, 255, 0.16);
       background: #111;
       transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+      transform: translateZ(30px);
     }
 
     .music-content {
       flex: 1;
       min-width: 0;
+      transform: translateZ(24px);
     }
 
     .music-header {
@@ -681,6 +714,117 @@
         bgVideo.play().catch(() => {});
       }
     });
+
+    const reduzirMovimento = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const ponteiroPreciso = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    const cardsTilt = document.querySelectorAll(".profile-card, .music-card");
+
+    if (!reduzirMovimento) {
+      cardsTilt.forEach((card) => {
+        let alvoRx = 0;
+        let alvoRy = 0;
+        let alvoTy = 0;
+        let alvoScale = 1;
+
+        let atualRx = 0;
+        let atualRy = 0;
+        let atualTy = 0;
+        let atualScale = 1;
+
+        let animando = false;
+        let resetTimer = null;
+
+        function limitar(valor, min, max) {
+          return Math.min(max, Math.max(min, valor));
+        }
+
+        function moverPara(clientX, clientY, forca = 8) {
+          const rect = card.getBoundingClientRect();
+          const x = limitar((clientX - rect.left) / rect.width, 0, 1);
+          const y = limitar((clientY - rect.top) / rect.height, 0, 1);
+
+          alvoRy = (x - 0.5) * forca * 2;
+          alvoRx = -(y - 0.5) * forca * 2;
+          alvoTy = -5;
+          alvoScale = 1.018;
+
+          card.style.setProperty("--mx", `${x * 100}%`);
+          card.style.setProperty("--my", `${y * 100}%`);
+          card.style.setProperty("--light", "1");
+
+          iniciarAnimacao();
+        }
+
+        function voltarNormal() {
+          alvoRx = 0;
+          alvoRy = 0;
+          alvoTy = 0;
+          alvoScale = 1;
+          card.style.setProperty("--light", "0");
+          iniciarAnimacao();
+        }
+
+        function iniciarAnimacao() {
+          if (animando) return;
+          animando = true;
+          requestAnimationFrame(animar);
+        }
+
+        function animar() {
+          atualRx += (alvoRx - atualRx) * 0.13;
+          atualRy += (alvoRy - atualRy) * 0.13;
+          atualTy += (alvoTy - atualTy) * 0.13;
+          atualScale += (alvoScale - atualScale) * 0.13;
+
+          card.style.setProperty("--rx", `${atualRx.toFixed(3)}deg`);
+          card.style.setProperty("--ry", `${atualRy.toFixed(3)}deg`);
+          card.style.setProperty("--ty", `${atualTy.toFixed(3)}px`);
+          card.style.setProperty("--scale", atualScale.toFixed(4));
+
+          const precisaContinuar =
+            Math.abs(alvoRx - atualRx) > 0.01 ||
+            Math.abs(alvoRy - atualRy) > 0.01 ||
+            Math.abs(alvoTy - atualTy) > 0.01 ||
+            Math.abs(alvoScale - atualScale) > 0.0005;
+
+          if (precisaContinuar) {
+            requestAnimationFrame(animar);
+          } else {
+            animando = false;
+          }
+        }
+
+        if (ponteiroPreciso) {
+          card.addEventListener("pointermove", (event) => {
+            moverPara(event.clientX, event.clientY, 7.5);
+          });
+
+          card.addEventListener("pointerleave", () => {
+            voltarNormal();
+          });
+        } else {
+          card.addEventListener("pointerdown", (event) => {
+            moverPara(event.clientX, event.clientY, 6.5);
+
+            clearTimeout(resetTimer);
+            resetTimer = setTimeout(() => {
+              voltarNormal();
+            }, 650);
+          });
+
+          card.addEventListener("pointerup", () => {
+            clearTimeout(resetTimer);
+            resetTimer = setTimeout(() => {
+              voltarNormal();
+            }, 360);
+          });
+
+          card.addEventListener("pointercancel", () => {
+            voltarNormal();
+          });
+        }
+      });
+    }
 
     document.querySelectorAll(".protected-img").forEach((img) => {
       img.addEventListener("contextmenu", (event) => event.preventDefault());
