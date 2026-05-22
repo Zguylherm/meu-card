@@ -162,8 +162,11 @@
     .music-card {
       position: relative;
       overflow: hidden;
-      transform-style: preserve-3d;
-      transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease, border-color 0.35s ease;
+      transition:
+        transform 0.28s ease,
+        box-shadow 0.28s ease,
+        border-color 0.28s ease,
+        background 0.28s ease;
       will-change: transform;
     }
 
@@ -177,39 +180,34 @@
     .music-card::before {
       content: "";
       position: absolute;
-      inset: -80px;
-      background:
-        radial-gradient(circle at top left, rgba(255, 0, 60, 0.20), transparent 35%),
-        radial-gradient(circle at bottom right, rgba(120, 50, 255, 0.14), transparent 40%);
-      opacity: 0.9;
-      pointer-events: none;
-    }
-
-    .profile-card::after,
-    .music-card::after {
-      content: "";
-      position: absolute;
       inset: 0;
-      background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.06) 42%, transparent 72%);
-      opacity: 0;
-      transform: translateX(-35%);
-      transition: opacity 0.35s ease, transform 0.55s ease;
+      background:
+        radial-gradient(circle at 18% 0%, rgba(255, 0, 60, 0.18), transparent 36%),
+        radial-gradient(circle at 100% 100%, rgba(120, 50, 255, 0.13), transparent 42%),
+        linear-gradient(135deg, rgba(255,255,255,0.055), transparent 48%, rgba(255,255,255,0.025));
+      opacity: 0.72;
+      transition: opacity 0.28s ease;
       pointer-events: none;
     }
 
     .profile-card:hover,
     .music-card:hover {
-      border-color: rgba(255, 60, 100, 0.34);
+      transform: translateY(-4px);
+      border-color: rgba(255, 60, 100, 0.38);
       box-shadow:
-        0 24px 70px rgba(0, 0, 0, 0.46),
-        0 0 44px rgba(255, 0, 45, 0.28),
-        inset 0 1px 0 rgba(255,255,255,0.10);
+        0 26px 76px rgba(0, 0, 0, 0.48),
+        0 0 46px rgba(255, 0, 45, 0.30),
+        inset 0 1px 0 rgba(255,255,255,0.11);
     }
 
-    .profile-card:hover::after,
-    .music-card:hover::after {
+    .profile-card:hover::before,
+    .music-card:hover::before {
       opacity: 1;
-      transform: translateX(35%);
+    }
+
+    .profile-card:active,
+    .music-card:active {
+      transform: translateY(-2px) scale(0.995);
     }
 
     .avatar {
@@ -224,7 +222,6 @@
       margin-bottom: 20px;
       background: #000;
       transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
-      transform: translateZ(24px);
     }
 
     h1 {
@@ -291,7 +288,6 @@
         0 0 30px rgba(123, 60, 255, 0.16);
       background: #111;
       transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
-      transform: translateZ(24px);
     }
 
     .music-content {
@@ -504,7 +500,7 @@
     preload="auto"
   >
     <source
-      src="https://cdn.discordapp.com/attachments/1504180702067818607/1504238448943435931/the-shadow-fantasy-king-moewalls-com.mp4?ex=6a083cf9&is=6a06eb79&hm=55811117c9435f3d59d3496110738df397e08c54f0e2e53c092cc4ed1a29cae3&"
+      src="https://cdn.discordapp.com/attachments/1504180702067818607/1504238448943435931/the-shadow-fantasy-king-moewalls-com.mp4?ex=6a122039&is=6a10ceb9&hm=4a60a8e63535dd8a85fa331f73321b5bcd2fcaabdb2b51dee637bd61f47eeb17&"
       type="video/mp4"
     >
   </video>
@@ -628,6 +624,11 @@
     });
 
     const bgVideo = document.getElementById("bgVideo");
+    const bgVideoUrl = "https://cdn.discordapp.com/attachments/1504180702067818607/1504238448943435931/the-shadow-fantasy-king-moewalls-com.mp4?ex=6a122039&is=6a10ceb9&hm=4a60a8e63535dd8a85fa331f73321b5bcd2fcaabdb2b51dee637bd61f47eeb17&";
+
+    if (bgVideo) {
+      bgVideo.src = bgVideoUrl;
+    }
 
     function carregarVideoFundo() {
       if (!bgVideo) return;
@@ -675,63 +676,10 @@
       bgVideo.play().catch(() => {});
     }, { once: true });
 
-    const cardsTilt = document.querySelectorAll(".profile-card, .music-card");
-
-    function aplicarTilt(card, clientX, clientY) {
-      const rect = card.getBoundingClientRect();
-
-      const x = clientX - rect.left;
-      const y = clientY - rect.top;
-
-      const meioX = rect.width / 2;
-      const meioY = rect.height / 2;
-
-      const rotateY = ((x - meioX) / meioX) * 5;
-      const rotateX = -((y - meioY) / meioY) * 5;
-
-      card.style.transform = `
-        rotateX(${rotateX}deg)
-        rotateY(${rotateY}deg)
-        scale(1.012)
-      `;
-    }
-
-    function resetTilt(card) {
-      card.style.transform = "rotateX(0deg) rotateY(0deg) scale(1)";
-    }
-
-    cardsTilt.forEach((card) => {
-      card.addEventListener("mousemove", (event) => {
-        aplicarTilt(card, event.clientX, event.clientY);
-      });
-
-      card.addEventListener("mouseleave", () => {
-        resetTilt(card);
-      });
-
-      card.addEventListener("touchstart", (event) => {
-        const touch = event.touches[0];
-        aplicarTilt(card, touch.clientX, touch.clientY);
-      }, { passive: true });
-
-      card.addEventListener("touchmove", (event) => {
-        const touch = event.touches[0];
-        aplicarTilt(card, touch.clientX, touch.clientY);
-      }, { passive: true });
-
-      card.addEventListener("touchend", () => {
-        setTimeout(() => {
-          resetTilt(card);
-        }, 450);
-      });
-
-      card.addEventListener("click", (event) => {
-        aplicarTilt(card, event.clientX, event.clientY);
-
-        setTimeout(() => {
-          resetTilt(card);
-        }, 550);
-      });
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden && bgVideo) {
+        bgVideo.play().catch(() => {});
+      }
     });
 
     document.querySelectorAll(".protected-img").forEach((img) => {
