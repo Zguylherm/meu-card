@@ -164,9 +164,6 @@
       --ry: 0deg;
       --ty: 0px;
       --scale: 1;
-      --mx: 50%;
-      --my: 50%;
-      --light: 0;
       position: relative;
       overflow: hidden;
       transform-style: preserve-3d;
@@ -197,41 +194,21 @@
       position: absolute;
       inset: -1px;
       background:
-        radial-gradient(circle at 18% 0%, rgba(255, 0, 60, 0.18), transparent 36%),
-        radial-gradient(circle at 100% 100%, rgba(120, 50, 255, 0.13), transparent 42%),
-        linear-gradient(135deg, rgba(255,255,255,0.055), transparent 48%, rgba(255,255,255,0.025));
+        radial-gradient(circle at 18% 0%, rgba(255, 0, 60, 0.16), transparent 36%),
+        radial-gradient(circle at 100% 100%, rgba(120, 50, 255, 0.11), transparent 42%);
       opacity: 0.78;
       transition: opacity 0.25s ease;
       pointer-events: none;
       transform: translateZ(0);
     }
 
-    .profile-card::after,
-    .music-card::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(
-          circle at var(--mx) var(--my),
-          rgba(255, 255, 255, 0.18),
-          rgba(255, 255, 255, 0.07) 18%,
-          transparent 42%
-        );
-      opacity: var(--light);
-      transition: opacity 0.22s ease;
-      pointer-events: none;
-      mix-blend-mode: screen;
-      transform: translateZ(1px);
-    }
 
     .profile-card:hover,
     .music-card:hover {
       border-color: rgba(255, 60, 100, 0.40);
       box-shadow:
         0 28px 80px rgba(0, 0, 0, 0.50),
-        0 0 46px rgba(255, 0, 45, 0.30),
-        inset 0 1px 0 rgba(255,255,255,0.12);
+        0 0 42px rgba(255, 0, 45, 0.24);
     }
 
     .profile-card:hover::before,
@@ -657,7 +634,7 @@
     });
 
     const bgVideo = document.getElementById("bgVideo");
-    const bgVideoUrl = "https://cdn.discordapp.com/attachments/1504180702067818607/1504238448943435931/the-shadow-fantasy-king-moewalls-com.mp4?ex=6a122039&is=6a10ceb9&hm=4a60a8e63535dd8a85fa331f73321b5bcd2fcaabdb2b51dee637bd61f47eeb17&";
+    const bgVideoUrl = "https://i.pinimg.com/474x/21/9e/ae/219eaea67aafa864db091919ce3f5d82.jpg";
 
     if (bgVideo) {
       bgVideo.src = bgVideoUrl;
@@ -748,10 +725,6 @@
           alvoTy = -5;
           alvoScale = 1.018;
 
-          card.style.setProperty("--mx", `${x * 100}%`);
-          card.style.setProperty("--my", `${y * 100}%`);
-          card.style.setProperty("--light", "1");
-
           iniciarAnimacao();
         }
 
@@ -760,7 +733,6 @@
           alvoRy = 0;
           alvoTy = 0;
           alvoScale = 1;
-          card.style.setProperty("--light", "0");
           iniciarAnimacao();
         }
 
